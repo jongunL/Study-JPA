@@ -1,0 +1,155 @@
+웹 애플리케이션 만들기 진행 순서
+1. 프로젝트 환경설정
+	- Base Framework: Spring Framework
+	- Builder		: Maven
+	- Web Server	: Tomcat
+	- Web Layer		: Spring MVC
+	- View			: Thymeleaf
+	- Data Tier		: JPA, Hibernate
+	1-1. 프로젝트 환경설정 진행 순서
+		1. 프로젝트 구조 분석		: jpashop -> src/target/pom.xml ...
+		2. 메이븐과 라이브러리 설정	: pom.xml
+		3. 스프링 프레임워크 설정		: src/main/resources/[appConfig.xml/webAppConfig.xml] & src/main/webapp/WEB-INF/web.xml
+			- web.xml			: 웹 애플리케이션 환경설정 파일 -> webAppConfig.xml + appConfig.xml 경로 설정
+			- webAppConfig.xml	: 스프링 웹 관련 환경설정 설정
+			- appConfig.xml		: 스프링 애플리케이션 관련 환경설정 설정
+2. 도메인 모델과 테이블 설계
+	- 요구사항 분석
+		- 실제 도메인 모델 구성 및 테이블을 설계 및 연관관계 매핑
+			- 회원 기능
+				- 회원 등록
+				- 회원 조회
+			- 상품 기능
+				- 상품 등록
+				- 상품 수정
+				- 상품 조회
+			- 주문 기능
+				- 상품 주문
+				- 주문 내역 조회
+				- 주문 취소
+			- 기타 요구사항
+				- 상품의 종류는 도서, 음반, 영화가 있다.
+				- 상품을 카테고리로 구분할 수 있다.
+				- 상품 주문 시 배송 정보를 입력할 수 있다.
+		- 도메인 모델 설계
+			- 회원, 주문, 상품의 관계
+				- 회원, 주문, 상품의 관계(다대다 관계)
+					- 회원은 여러 상품을 주문할 수 있다.
+					- 한 번 주문할 때 여러 상품을 선택할 수 있다.
+					- (위와 같은 다대다 관계는 일대다, 다대일 관계로 풀어낸다.)
+				- 상품 분류
+					- 상품은 도서, 음반, 영화로 구분된다.
+					- 상품이라는 공통 속성을 사용한다. (상속 구조)
+			1. 회원 - 주문 - 배송
+			2. 주문 - 주문상품 - 상품(물품)
+			3. 카테고리 - 상품(물품) - 상품 종류(도서, 음반, 영화)
+		- 테이블 설계
+			- Address는 값 타입
+			1-1. 회원(Member) - 주문과 일대다 관계
+				- id		: Long
+				- name		: String
+				- address	: Address
+				- orders	: List
+			1-2. 주문(Order) - 회원과 다대일 관계, 배송과 일대일 관계, 주문상품과 일대다 관계
+				- id
+				- member	: Member
+				- orderItems: List
+				- delivery	: Delivery
+				- orderDate	: Date
+				- status	: OrderStatus
+			1-3. 배송(Delivery) - 주문과 일대일 관계
+				- id
+				- Order		: Order
+				- address	: Address
+				- status	: DeliveryStatus
+			2-1. 주문상품(OrderItem) - 주문 및 상품과 다대일 관계
+				- id
+				- item		: Item
+				- order		: Order
+				- orderPrice: int
+				- count		: int
+			2-2. 상품(Item) - 주문상품과 일대다 관계 
+				- id
+				- name			: String
+				- price			: int
+				- stockQuantity	: int
+				- categories	: List
+			sub. Album - 상품의 서브 타입
+				- artist
+				- etc
+			sub. Book - 상품의 서브 타입
+				- author
+				- isbn
+			sub. Movie - 상품의 서브 타입
+				- director
+				- actor	
+			3-1. 카테고리(Category) - 상품과 다대다 관계(조인 테이블 사용)
+				- id			
+				- name			: String
+				- items			: List
+				- parent		: Category
+				- child			: List
+	- 프로젝트 도메인 구조
+		- jpabook.jpashop.domain
+			- Member, Order, OrderItem, Delivery, Category, Address
+		- jpabook.jpashop.domain.item
+			- Item
+				- Book, Movie, Album
+3. 애플리케이션 기능 구현
+	- 엔티티와 테이블 설계과 완료된 후 실제 애플리케이션이 동작하도록 구현
+	- 단순화하여 개발하여 아래의 기능은 구현하지 않았음
+		- 로그인과 권한 관리
+		- 파라미터 검증과 예외 처리
+		- 상품은 도서만 사용
+		- 카테고리는 사용하지 않음
+		- 배송 정보는 사용하지 않음
+	- 개발 방법
+		- 일반적으로 많이 사용하는 계층형구조 사용
+			- Controller	: MVC 컨트롤러가 모여있는 곳으로, 컨트롤러는 서비스 계층을 호출하고 결과를 뷰에 전달한다. 
+			- Service		: 서비스 계층에는 비지니스 로직이 있고 트랜잭션을 시작한다. 서비스 계층은 데이터 접근 계층인 리포지토리를 호출한다.
+			- Repository	: JPA를 직접 사용하는 곳으로 엔티티 매니저를 사용해서 엔티티를 저장하고 조회한다.
+			- Domain		: 엔티티가 모여있는 계층으로 모든 계층에서 사용된다.(MVC 전체)
+	- 개발 순서
+		- 서비스와 리포지토리 계층을 먼저 개발한 뒤 테스트 케이스를 작성해서 검증하고, 검증이 완료되면 컨트롤러와 뷰를 개발하는 순서로 진행한다.
+		1. 회원 기능
+			- 회원 등록
+			- 회원 목록 조회
+			- ...repository.MemberRepository, ...service.MemberService
+			- 회원 기능 테스트
+				- src/test/java/...service.MemberServiceTest
+		2. 상품 기능
+			- 상품 등록
+			- 상품 목록 조회
+			- 상품 수정
+			- ...repository.ItemRepository, ...service.ItemService
+			- src/test/java/...service.MemberServiceTest
+		3. 주문 기능
+			- 상품 주문
+			- 주문 내역 조회
+			- 주문 취소
+			- ...domain.order, ...domain.orderItem, ...domain.orderSearch
+			- ...repository.OrderRepository, ...service.OrderService
+			- src/test/java/...service.OrderServiceTest
+4. 웹 계층 구현
+	- 상품 등록
+		- jpabook.jpashop.web.ItemController
+		
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

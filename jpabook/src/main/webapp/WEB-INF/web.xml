@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee https://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="3.0" metadata-complete="true">
+
+	<!-- web.xml -->
+	<!-- 웹 애플리케이션에서 스프링 프레임워크를 구동하기 위한 설정이 대부분 들어있다. -->
+	<!-- 아래를 보면 appConfig.xml을 설정하는 부분과 webConfig.xml을 설정하는 부분으로 나뉘어 있는데, -->
+	<!-- 스프링 프레임워크를 설정할 떄 보통 웹 계층과 비지니스 도메인 계층을 나누어 관리한다. -->
+	
+	<!-- web application context -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<!-- appConfig.xml - 비지니스 로직, 도메인 계층, 서비스 계층, 데이터 저장 계층을 담당한다. -->
+		<param-value>classpath:appConfig.xml</param-value>
+	</context-param>
+
+	<!-- Dispatcher Servlet 생성 -->
+	<!-- Dispatcher Servlet은 HTTP 프로토콜을 통해 들어오는 모든 요청을 프레젠테이션 계층의 제일앞에 둬서 중앙집중식으로 처리해주는 프론트 컨트롤러를 말한다. -->
+	<!-- 클라이언트 -> 요청 -> Dispatcher-Servlet -> 공통처리 작업 처리 후 적절한 세부 컨트롤러 작업 위임 -> ... -->
+	<servlet>
+		<servlet-name>dispatcher</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<!-- webAppConfig.xml - 스프링 MVC 설정을 포함해서 웹 계층을 담당한다.  -->
+			<param-value>classpath:webAppConfig.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>myDispatcherServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+</web-app>

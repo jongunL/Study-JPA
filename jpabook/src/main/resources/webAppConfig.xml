@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- 스프링 MVC 기능 활성화 -->
+    <mvc:annotation-driven/>
+    <!--<context:annotation-config />-->
+
+	<!-- basePackages를 포함한 하위 패키지를 검색해서 컴포넌트스캔 대상 클래스들을 스프링 빈으로 자동 등록한다. -->
+    <context:component-scan base-package="jpabook.jpashop.web"/>
+
+	<!-- 스프링 빈을 등록한다. -->
+	
+	<!-- 뷰 리졸버란? -->
+	<!-- 스프링 MVC에서 클라이언트의 요청에 대해 적절한 뷰를 결정하고 이를 렌더링 하는 역할을 담당하는 중요한 컴포넌트이다. -->
+	<!-- 뷰리졸버는 컨트롤러가 반환한 논리적 뷰 이름을 물리적 뷰 경로로 변환하여 클라이언트에게 응답을 생성한다. 이를 통해 컨트롤러와 뷰 사이의 결합도를 낮추고 뷰를 유연하게 관리할 수 있다. -->
+	<!-- 논리적 뷰 이름 : return "home" -> 컨트롤러가 반환하는 문자열 값(논리적 뷰 이름) -->
+	<!-- 물리적 뷰 경로 : /WEB-INF/views/home.jsp 와 같이 prefix와 suffix가 붙어 실제 파일 경로로 변환된 것 -->
+	<!-- 뷰 렌더링 : 변환된 물리적 경로에 있는 뷰 파일을 사용하여 HTML 또는 기타 형식의 응답을 생성한다. -->
+	
+	<!-- 뷰 리졸버 인식 과정 - 타입 기반 인식 및 우선순위 결정 -->
+	<!-- 	- 스프링은 ViewResolver 인터페이스를 구현한 모든 빈을 컨텍스트에서 찾아내어 이들을 뷰 리졸버 체인에 추가한다. 이 때 order 속성에 따라 우선순위를 갖게 된다. -->
+	
+	<!-- JSP를 위한 뷰 리졸버 설정 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+        <!-- 뷰 리졸버 순서 설정 - 숫자가 낮을수록 우선순위 높음  -> 먼저 JSP에서 해당 요청에 대한 파일 찾고 없으면 다음 우선순위를 갖은 뷰 리졸버가 사용됨-->
+        <property name="order" value="0"/>
+    </bean>
+    
+    <!-- 타임리프 템플릿 엔진을 위한 템플릿 리졸버 설정 -->
+    <bean id="templateResolver" class="org.thymeleaf.templateresolver.ClassLoaderTemplateResolver">
+        <property name="prefix" value="classpath:/templates/"/> <!-- 템플릿 경로 -->
+        <property name="suffix" value=".html"/> <!-- 템플릿 파일 확장자 -->
+        <property name="templateMode" value="HTML5"/> <!-- 템플릿 모드 -->
+        <property name="characterEncoding" value="UTF-8"/> <!-- 문자 인코딩 -->
+    </bean>
+
+    <!-- 타임리프 템플릿 엔진 설정 -->
+    <bean id="templateEngine" class="org.thymeleaf.spring5.SpringTemplateEngine">
+        <property name="templateResolver" ref="templateResolver"/>
+        <property name="enableSpringELCompiler" value="true"/> <!-- Spring EL 컴파일러 사용 -->
+    </bean>
+
+    <!-- 타임리프 뷰 리졸버 설정 -->
+    <bean class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+        <property name="templateEngine" ref="templateEngine"/>
+        <property name="characterEncoding" value="UTF-8"/> <!-- 문자 인코딩 설정 -->
+        <property name="order" value="1"/>
+    </bean>
+
+	<!-- 스프링 MVC의 정적 리소스 처리 -->
+	<!-- 정적 리소스는 스프링 MVC가 아닌 서블릿 컨테이너의 기본 서블릿이 처리하는 것이 효율적이다.  -->
+    <mvc:default-servlet-handler/>
+
+	<!-- 인터셉터 등록 -->
+	<!-- 컨트롤러로 요청이 전달되기 전후에 특정 로직을 실행할 수 있게 해주는 기능 -->
+	<!-- 즉 요청을 가로채서, 추가적인 처리(로깅, 인증, 트랜잭션 관리 등)를 할 수 있다. -->
+    <mvc:interceptors>
+    	<!-- OpenEntityManagerInViewInterceptor : JPA의 EntitiyManager를 뷰 렌더링까지 열어둬 트랜잭션 종류 후 지연 로딩된 엔티티를 사용할 수 있게 된다. -->
+        <bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor">
+            <property name="entityManagerFactory" ref="entityManagerFactory" />
+        </bean>
+    </mvc:interceptors>
+
+</beans>
