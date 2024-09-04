@@ -1,6 +1,7 @@
 package jpabook.jpashop.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,8 @@ public class ItemService {
 		return itemRepository.findAll();
 	}
 	
-	public Item fineOne(Long itemId) {
-		return itemRepository.fineOne(itemId);
+	public Optional<Item> fineOne(Long itemId) {
+		return itemRepository.findById(itemId);
 	}
 	
 }

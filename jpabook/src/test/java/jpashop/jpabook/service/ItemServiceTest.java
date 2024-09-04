@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jpabook.jpashop.domain.item.Book;
 import jpabook.jpashop.domain.item.Item;
-import jpabook.jpashop.repository.ItemRepository;
+import jpabook.jpashop.repository.deprecated.ItemRepository;
 import jpabook.jpashop.service.ItemService;
 
 @RunWith(SpringJUnit4ClassRunner.class)

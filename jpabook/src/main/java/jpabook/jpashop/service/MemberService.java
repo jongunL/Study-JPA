@@ -1,11 +1,11 @@
 package jpabook.jpashop.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.repository.MemberRepository;
 
@@ -59,8 +59,8 @@ public class MemberService {
 	/*
 	 * 
 	 */
-	public Member findOme(Long memberId) {
-		return memberRepository.fineOne(memberId);
+	public Optional<Member> fineOne(Long memberId) {
+		return memberRepository.findById(memberId);
 	}
 	
 }

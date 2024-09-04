@@ -54,7 +54,7 @@ public class ItemController {
 	//상품 수정 폼
 	@GetMapping("/{itemId}/edit")
 	public String updateItemForm(@PathVariable("itemId") Long itemId, Model model) {
-		Item item = itemService.fineOne(itemId);
+		Item item = itemService.fineOne(itemId).orElseThrow(() -> new IllegalArgumentException("No Value"));
 		model.addAttribute("item", item);
 		return "items/updateItemForm";
 	}

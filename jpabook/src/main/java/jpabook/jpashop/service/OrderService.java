@@ -1,11 +1,9 @@
 package jpabook.jpashop.service;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import jpabook.jpashop.domain.Delivery;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.domain.Order;
@@ -26,8 +24,8 @@ public class OrderService {
 	//주문
 	public Long order(Long memberId, Long itemId, int count) {
 		//엔티티 조회
-		Member member = memberRepository.fineOne(memberId);
-		Item item = itemService.fineOne(itemId);
+		Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("No Value"));
+		Item item = itemService.fineOne(itemId).orElseThrow(() -> new IllegalArgumentException("No Value"));
 		
 		//배송정보 생성
 		Delivery delivery = new Delivery(member.getAddress());
@@ -43,14 +41,14 @@ public class OrderService {
 	//주문 취소
 	public void cancelOrder(Long orderId) {
 		//주문 엔티티 조회
-		Order order = orderRepository.fineOne(orderId);
+		Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("No Value"));
 		//주문 취소
 		order.cancel();
 	}
 	
 	//주문 검색
 	public List<Order> findOrders(OrderSearch orderSearch) {
-		return orderRepository.findAll(orderSearch);
+		return orderRepository.findAll(orderSearch.toSpecification());
 	}
 	
 }

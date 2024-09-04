@@ -133,7 +133,17 @@
 4. 웹 계층 구현
 	- 상품 등록
 		- jpabook.jpashop.web.ItemController
-		
+
+스프링 데이터 JPA
+	- pom.xml 의존성 추가
+	- 이후 xml 또는 JavaConfig를 사용해 환경설정을 한다. -> appConfig.xml
+	- 리포지토리 리팩토링
+		- jpabook.jpashop.repository.MemberRepository
+		- ....ItemRepository
+		- ....OrderRepository
+		- OrderRepository의 명세 구현
+			- jpabook.jpashop.domain.OrderSpec
+			- jpabook.jpashop.domain.OrderSearch
 
 	
 	

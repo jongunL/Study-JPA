@@ -18,7 +18,7 @@ import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.domain.item.Book;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.NotEnoughStockExcpetion;
-import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.deprecated.OrderRepository;
 import jpabook.jpashop.service.OrderService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
